@@ -1,0 +1,34 @@
+name: incremental workspace deployment
+
+on:
+  push:
+    # paths:
+    # - /
+    branches:
+      - main
+      - workspace_publish
+  workflow_dispatch:
+
+jobs:
+  release:
+    name:
+      Incemental release to uat environment
+      # You also can use the self-hosted runners.
+    runs-on: ubuntu-latest
+    steps:
+      # Checks out your repository under $GITHUB_WORKSPACE, so your job can access it.
+      - uses: actions/checkout@v2
+      - uses: azure/synapse-workspace-deployment@release-1.0
+        with:
+          TargetWorkspaceName: "cdh-azure-snps-uat"
+          TemplateFile: "./cdh-azure-snps-dev/TemplateForWorkspace.json"
+          ParametersFile: "./cdh-azure-snps-dev/TemplateParametersForWorkspace.json"
+          #OverrideArmParameters: './path of the parameters.yaml'
+          environment: "Azure Public"
+          resourceGroup: "cdh-synapse-cicd"
+          clientId: ${{secrets.CLIENTID}}
+          clientSecret: ${{secrets.CLIENTSECRET}}
+          subscriptionId: ${{secrets.SUBSCRIPTIONID}}
+          tenantId: ${{secrets.TENANTID}}
+          DeleteArtifactsNotInTemplate: "true"
+          managedIdentity: "False"
